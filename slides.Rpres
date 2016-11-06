@@ -1,0 +1,419 @@
+<style>
+.footer {
+    color: black; background: #E8E8E8;
+    position: fixed; top: 90%;
+    text-align:center; width:100%;
+}
+.small-code pre code {
+  font-size: 1em;
+}
+.reveal section del {
+  color: red;
+}
+.exclaim .reveal .state-background {
+  background: white;
+} 
+
+.exclaim .reveal h1,
+.exclaim .reveal h2,
+.exclaim .reveal p,
+.exclaim .reveal ul,
+.exclaim .reveal ol {
+  color: red;
+}
+</style>
+
+R for Everything: Getting, Cleaning, Visualizing, and Analyzing Data
+========================================================
+author: David Ranzolin
+date: November 17, 2016
+autosize: true
+
+About Me
+====================================
+left: 40%
+type: exclaim
+<img src="https://avatars0.githubusercontent.com/u/9537384?v=3&s=466" style="background-color:transparent; border:0px; box-shadow:none;"></img>
+***
+
+<h3>Background</h3>
+- English and Religious Studies
+- Scoutlet for ~ two and a half years</del>
+- useR for ~ two years
+- @RCatLadies for ~ one year
+
+About UC Scout
+====================================
+left: 40%
+type: exclaim
+
+<img src="http://universityofcalifornia.edu/sites/default/files/ucop_calprep_UCOP-12.jpg" style="float:left margin-left:-5px" height="400px" width="500px" style="background-color:transparent; border:0px; box-shadow:none;">
+</img>
+<img src="http://blog.ucscout.org/wp-content/uploads/2016/06/FullSizeRender-12-300x278.jpg" style="float:left margin-left:-5px" height = "400px" width="500px" style="background-color:transparent; border:0px; box-shadow:none;">
+</img>
+
+***
+
+<h3>Overview</h3>
+- UC's online high school program
+- Serve several thousand California students and teachers each year.
+
+<h3>Mission</h3>
+- Reach out to educationally disadvantaged students, raising achievement levels and closing achievement gaps.
+
+<h3>News</h3>
+- Recipient of $4 million grant from state legislature to develop 45 new courses.
+
+
+
+About R
+====================================
+left: 40%
+type: exclaim
+<img src="https://janikvonrotz.ch/wp-content/uploads/2015/12/R-language-logo.png" style="background-color:transparent; border:0px; box-shadow:none;"></img>
+<img src="https://www.rstudio.com/wp-content/uploads/2014/04/rstudio-workbench.png" style="background-color:transparent; border:0px; box-shadow:none;"></img>
+***
+
+<h3>Accessibility</h3>
+- Free, open source
+
+<h3>Community</h3>
+- Diverse (relative to other programming langauges)
+- Attentive to beginners
+- Innovative
+
+<h3>Tools</h3>
+- RStudio
+- tidyverse
+
+The tidyverse
+====================================
+class: small-code
+type: exclaim
+
+<h3>Philosophy:</h3>
+
+1. Data should be in a consistent form (data frame)
+2. Each variable is a column
+3. Sequence clear, logical steps
+
+<h3>Installation:</h3>
+
+```{r eval = FALSE}
+install.packages("tidyverse")
+library(tidyverse) #loads tidyverse core: readr, dplyr, tidyr, purrr, ggplot2, tibble 
+```
+
+The tidyverse: readr
+====================================
+class: small-code
+type: exclaim
+
+<h3>Purpose</h3>
+Fast and friendly way to read rectangular data.
+
+<h3>Usage</h3>
+
+<center>
+
+To... | Use...
+-------------|----------------------
+Read delimited files | `read_delim()`, `read_csv()`,  `read_tsv()`
+Read lines           | `read_lines()`
+Read fixed width files | `read_fwf()`,  `read_table()`
+
+</center>
+
+
+```{r echo = FALSE}
+library(tidyverse)
+```
+
+```{r}
+df = data_frame(x = 1:3, y = x^2, z = sample(letters, 3, replace = TRUE))
+write_csv(df, "my_csv.csv")
+read_csv("my_csv.csv")
+```
+
+The tidyverse: dplyr
+====================================
+type: exclaim
+<h3>Purpose</h3>
+Manipulate data frames: filtering, selecting, mutating, etc.
+
+<h3>Usage</h3>
+
+
+<center>
+
+To... | Use...
+-------------|----------------------
+Select columns | `select()`
+Subset rows | `filter()`
+Create additional columns | `mutate()`
+Calculate summary statistics | `summarize()`
+Order rows | `arrange()`
+Perform joins | `inner_join()`, `left_join()`, `anti_join()`, `semi_join()`
+Group | `group_by()`
+
+</center>
+
+The tidyverse: dplyr
+====================================
+class: small-code
+type: exclaim
+
+
+```{r eval = FALSE}
+select(iris, Sepal.Length, Petal.Length, Species)
+
+filter(iris, Sepal.Length > 7)
+
+mutate(iris, sepal = Sepal.Length + Sepal.Width)
+
+summarize(iris, avg = mean(Sepal.Length))
+```
+
+The pipe (`%>%`) chains `tidyverse` functions together:
+
+```{r}
+iris %>% 
+  filter(Sepal.Length > 4) %>% 
+  group_by(Species) %>% 
+  summarize(avg = mean(Sepal.Width)) %>% 
+  arrange(desc(avg))
+```
+
+The tidyverse: tidyr
+====================================
+class: small-code
+type: exclaim
+
+<h3>Purpose</h3>
+Package to tidy and reshape data.
+
+<h3>Usage</h3>
+
+<center>
+
+To... | Use...
+-------------|----------------------
+Make wide data long | `gather()`
+Make long data wide| `spread()`
+
+<center>
+
+```{r eval = FALSE}
+table5 <- table4 %>% gather(year, cases, -country)
+table4 <- table5 %>% spread(year, cases)
+```
+
+<img src="http://garrettgman.github.io/images/tidy-9.png" width=1000 height=300 style="background-color:transparent; border:0px; box-shadow:none;"></img>
+
+The tidyverse: purrr
+====================================
+class: small-code
+type: exclaim
+
+<h3>Purpose</h3>
+
+Work with lists and facilitate iteration.
+
+<h3>Usage</h3>
+
+<center>
+
+To... | Use...
+-------------|----------------------
+Apply a function to each element | `map()`,  `map_*()`
+Transpose a list | `transpose()`
+Flatten a list | `flatten()`
+Control error handling | `safely()`,  `possibly()`
+
+<center>
+
+```{r}
+map_dbl(1:3, log, base = 2)
+```
+
+The tidyverse: purrr
+====================================
+class: small-code
+
+Using `purrr` to calculate [Ed-Data's Ethnic Diversity Index (EDI)](https://www.ed-data.k12.ca.us/Pages/Ethnic-Diversity-Index-Calculation.aspx)
+
+```{r}
+edi <- function(df) {
+  if (!is.data.frame(df)) stop("student_df must be a data frame")
+  if (!"ethnicity" %in% names(df)) stop("ethnicity must be a column")
+  ur <- c("Decline/Don't Know", "Other", "")
+  ur_fraction <- sum(df$ethnicity %in% ur) /
+                 sum(!df$ethnicity %in% ur)
+  diversity_rating <- df %>% 
+    mutate(ethnicity = ifelse(ethnicity %in% ur, 
+                              "none reported", 
+                              ethnicity)) %>% 
+    split(.$ethnicity) %>% 
+    map(~ nrow(.)/nrow(df)/(1-ur_fraction)) %>% 
+    map_dbl(~ (. - (1/13))^2) %>%  #There are thirteen reported ethnicities
+    sum(.) %>% 
+    sqrt(.)
+  c2 <- -100 * sqrt(13*(13-1))/(13-1)
+  100 + (c2 * diversity_rating)
+}
+```
+
+
+The tidyverse: ggplot2
+====================================
+type: exclaim
+
+<h3>Purpose</h3>
+A plotting system based on the Grammar of Graphics.
+
+<h3>Usage</h3>
+
+```
+
+
+
+
+Showcase #1: A tidyverse script
+====================================
+type: alert
+
+<h3>Requirement</h3>
+Notify via email each student earning less than 80%, as well as their parent
+and their counselor.
+
+<h3>Solution</h3>
+R, `tidyverse`, `rcanvas`, and `gmailr`.
+
+
+Step 1: Get course data from LMS
+====================================
+class: small-code
+
+```{r eval = FALSE}
+library(rcanvas)
+
+premium_courses <- get_course_list() %>% 
+  filter(grepl("Premium", name))
+  
+get_emails_and_grades <- function(id) {
+  emails <- get_course_items(id, "users", include = "email") %>% 
+    select(name, sis_user_id, sis_login_id, email)
+  grades <- get_course_items(id, "enrollments") %>% 
+    filter(enrollment_state == "active") %>% 
+    select(id, user.name, user.sis_user_id, user.sis_login_id, grades.current_score) %>% 
+  left_join(emails, grades, by = c("sis_user_id" = "user.sis_user_id"))
+}
+
+safe_function <- safely(get_emails_and_grades)
+
+student_data <- premium_courses$id %>% 
+  map(safe_function) %>% 
+  bind_rows() %>% 
+  left_join(premium_courses, by = c("course_id.x" = "id")) %>%
+  select(name, sis_user_id, email, course_id.x, grades.current_score, sis_course_id)
+```
+
+Step 2: Get and tidy student contact data from SIS (CSV file)
+====================================
+class: small-code
+
+```{r eval = FALSE}
+student_contact <- read_csv("student_contact.csv") %>% 
+  select(sis_user_id = `Student ID`, Student, Question, Answer, email = Email) %>%
+  spread(Question, Answer)
+```
+
+```{r echo = FALSE}
+data_frame(sis_user_id = c("A0004325", "A0004375", "A0004925"), Student = c("David Ranzolin", "Sajira Awang", "Lisa Dominguez"), Email = c("dranzolin@ucscout.org", "sawang@ucscout.org", "ldominguez@ucscout.org"), `Parent Email` = "info@ucscout.org", `Counselor Email` = "webreg@ucscout.org")
+
+```
+
+Step 3: Join LMS and SIS data together
+====================================
+class: small-code
+
+```{r eval = FALSE}
+email_df <- student_contact %>% 
+  left_join(student_data, by = "sis_user_id") %>% 
+  filter(grades.current_score < 80) %>% 
+  select(-Sections, -course_id.x) %>% 
+  rename(counselor_email = `Counselor Email`,
+         parent_email = `Parent Email`)
+
+```
+
+Step 4: Prepare email components
+====================================
+class: small-code
+
+```{r eval = FALSE}
+subject <- "UC Scout Weekly Grade Update"
+email_sender <- 'UC Scout <info@ucscout.org>' 
+body <- "Dear %s,
+
+We're writing to inform you that your current grade in %s is %s. You can view your course progress in your Online Classroom (classroom.ucscout.org). 
+Please let us know if you need any assistance. You can also contact your teacher with any further questions or concerns.
+
+Best wishes,
+The Scout Team"
+
+email_df2 <- email_df %>%
+  mutate(
+    To = sprintf('%s <%s>, <%s>, <%s>', name, email, counselor_email, parent_email),
+    From = email_sender,
+    Subject = subject,
+    Body = sprintf(body, name, sis_course_id, grades.current_score)) %>%
+  select(To, From, Subject, Body)
+```
+
+Step 5: Send the emails!
+=====================================
+class: small-code
+
+```{r eval = FALSE}
+library(gmailr)
+emails <- email_df2 %>% 
+  pmap(mime)
+
+use_secret_file("client_secret_PROJ-NAME.json")
+
+safe_send_message <- safely(send_message)
+sent_mail <- emails %>% 
+  map(safe_send_message)
+```
+
+Showcase #2: HTML Reports with rmarkdown
+=====================================
+type: alert
+
+<h3>Requirement</h3>
+Produce an aesthetically pleasing and reproducible report with plots,
+tables, and prose commentary.
+
+<h3>Solution</h3>
+R, `rmarkdown`, and `knitr`.
+
+
+Showcase #3: Web application with flexdashboard and shiny
+=====================================
+type: alert
+
+<h3>Requirement</h3>
+Create and share an interactive dashboard.
+
+<h3>Solution</h3>
+R, `shiny`, and `flexdashboard`.
+
+Conclusion
+=====================================
+With the `tidyverse` in hand, R is:
+
+- Flexible
+- Powerful
+- Affordable
+- *Accessible*
