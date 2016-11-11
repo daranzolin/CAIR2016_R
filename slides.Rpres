@@ -38,13 +38,13 @@ type: exclaim
 
 <h3>Background</h3>
 - English and Religious Studies
-- Scoutlet for ~ two and a half years</del>
+- Scout ~ three years
 - useR for ~ two years
-- @RCatLadies for ~ one year
+- @RCatLadies for ~ two years
 
 About UC Scout
 ====================================
-left: 40%
+left: 35%
 type: exclaim
 
 <img src="http://universityofcalifornia.edu/sites/default/files/ucop_calprep_UCOP-12.jpg" style="float:left margin-left:-5px" height="400px" width="500px" style="background-color:transparent; border:0px; box-shadow:none;">
@@ -55,8 +55,7 @@ type: exclaim
 ***
 
 <h3>Overview</h3>
-- UC's online high school program
-- Serve several thousand California students and teachers each year.
+- UC's online high school program, serving several thousand California students and teachers each year.
 
 <h3>Mission</h3>
 - Reach out to educationally disadvantaged students, raising achievement levels and closing achievement gaps.
@@ -64,6 +63,23 @@ type: exclaim
 <h3>News</h3>
 - Recipient of $4 million grant from state legislature to develop 45 new courses.
 
+
+Some R Logic
+====================================
+type: exclaim
+
+<h3>Premises</h3>
+
+1. R is flexible.
+2. R is powerful.
+3. R is affordable.
+4. R is accessible.
+
+***
+
+<h3>Inferences</h3>
+1. You can use R.
+2. You *should* use R?
 
 
 About R
@@ -91,17 +107,21 @@ The tidyverse
 class: small-code
 type: exclaim
 
-<h3>Philosophy:</h3>
+<h3>Philosophy</h3>
 
 1. Data should be in a consistent form (data frame)
 2. Each variable is a column
 3. Sequence clear, logical steps
 
-<h3>Installation:</h3>
+<center>
+<img src="http://r4ds.had.co.nz/diagrams/data-science.png" style="background-color:transparent; border:0px; box-shadow:none;"></img>
+</center>
+
+<h3>Installation</h3>
 
 ```{r eval = FALSE}
 install.packages("tidyverse")
-library(tidyverse) #loads tidyverse core: readr, dplyr, tidyr, purrr, ggplot2, tibble 
+library(tidyverse) #loads readr, dplyr, tidyr, purrr, ggplot2, tibble 
 ```
 
 The tidyverse: readr
@@ -153,7 +173,7 @@ Subset rows | `filter()`
 Create additional columns | `mutate()`
 Calculate summary statistics | `summarize()`
 Order rows | `arrange()`
-Perform joins | `inner_join()`, `left_join()`, `anti_join()`, `semi_join()`
+Perform joins | `inner_join()`, `left_join()`, `anti_join()`, etc.
 Group | `group_by()`
 
 </center>
@@ -204,11 +224,10 @@ Make long data wide| `spread()`
 <center>
 
 ```{r eval = FALSE}
-table5 <- table4 %>% gather(year, cases, -country)
-table4 <- table5 %>% spread(year, cases)
+table4 %>% gather(year, cases, -country)
 ```
 
-<img src="http://garrettgman.github.io/images/tidy-9.png" width=1000 height=300 style="background-color:transparent; border:0px; box-shadow:none;"></img>
+<img src="http://garrettgman.github.io/images/tidy-9.png" width=900 height=275 style="background-color:transparent; border:0px; box-shadow:none;"></img>
 
 The tidyverse: purrr
 ====================================
@@ -238,6 +257,7 @@ map_dbl(1:3, log, base = 2)
 
 The tidyverse: purrr
 ====================================
+type: exclaim
 class: small-code
 
 Using `purrr` to calculate [Ed-Data's Ethnic Diversity Index (EDI)](https://www.ed-data.k12.ca.us/Pages/Ethnic-Diversity-Index-Calculation.aspx)
@@ -250,11 +270,9 @@ edi <- function(df) {
   ur_fraction <- sum(df$ethnicity %in% ur) /
                  sum(!df$ethnicity %in% ur)
   diversity_rating <- df %>% 
-    mutate(ethnicity = ifelse(ethnicity %in% ur, 
-                              "none reported", 
-                              ethnicity)) %>% 
+    filter(!ethnicity %in% ur) %>% 
     split(.$ethnicity) %>% 
-    map(~ nrow(.)/nrow(df)/(1-ur_fraction)) %>% 
+    map(~ nrow(.)/nrow(df)/(1 - ur_fraction)) %>% 
     map_dbl(~ (. - (1/13))^2) %>%  #There are thirteen reported ethnicities
     sum(.) %>% 
     sqrt(.)
@@ -267,15 +285,60 @@ edi <- function(df) {
 The tidyverse: ggplot2
 ====================================
 type: exclaim
+class: small-code
+
 
 <h3>Purpose</h3>
 A plotting system based on the Grammar of Graphics.
 
 <h3>Usage</h3>
 
+```{r echo = FALSE, fig.width = 10, fig.height = 6, fig.align = "center"}
+student_data <- readRDS("student_data.RDS")
+student_data %>% 
+  mutate(has_a = ifelse(grades.current_score %in% seq(90, 100, by = 0.01), "A", "Not A"),
+         Student = ifelse(grades.current_score > 80 & page_views > 600, "High Views, High Grade",
+                ifelse(grades.current_score > 80 & page_views < 600, "Low Views, High Grade",
+                ifelse(grades.current_score < 80 & page_views > 600, "High Views, Low Grade",
+                ifelse(grades.current_score < 80 & page_views < 600, "Low Views, Low Grade", "Other"))))) %>% 
+  filter(total_activity_time < 1000000,
+         user_id != 1032) %>% 
+  ggplot(aes(page_views, grades.current_score)) +
+  geom_rect(aes(xmin = 600, ymin = 0, ymax = 80, xmax = Inf), fill = "pink") +
+  geom_point(aes(color = Student)) +
+  geom_smooth(se = FALSE, alpha = 0.5) +
+  facet_wrap(~department, nrow = 2) +
+  geom_vline(xintercept = 600, linetype = "dashed") +
+  geom_hline(yintercept = 80, linetype = "dashed") +
+  ggthemes::scale_color_stata() +
+  annotate("text", x = 1900, y = 45, label = "Intervention \nNeeded?", size = 6, fontface = "italic") +
+  labs(x = "Canvas Page Views", y = "Counts", title = "How Many Page Views for an A?",
+       subtitle = "Core Premium Grades and Page Views by Department",
+       caption = "Data as of November 11, 2016") +
+  ggthemes::theme_fivethirtyeight() +
+  theme(strip.text.x = element_text(size = 15, colour = "red")) +
+  theme(legend.position = "none")
 ```
 
 
+The tidyverse: tibble
+====================================
+type: exclaim
+class: small-code
+
+<h3>Purpose</h3>
+Data frames with nicer behavior around printing and subsetting 
+
+<h3>Usage</h3>
+
+```{r}
+df1 <- tibble(x1 = 1:3, y1 = 1, z1 = x1 ^ 2 + y1)
+df1
+```
+
+```{r warning = TRUE}
+df1$x
+```
 
 
 Showcase #1: A tidyverse script
@@ -283,8 +346,8 @@ Showcase #1: A tidyverse script
 type: alert
 
 <h3>Requirement</h3>
-Notify via email each student earning less than 80%, as well as their parent
-and their counselor.
+Email each student earning less than 80%, as well as their parents
+and school counselors.
 
 <h3>Solution</h3>
 R, `tidyverse`, `rcanvas`, and `gmailr`.
@@ -392,7 +455,7 @@ Showcase #2: HTML Reports with rmarkdown
 type: alert
 
 <h3>Requirement</h3>
-Produce an aesthetically pleasing and reproducible report with plots,
+Produce a reproducible report with plots,
 tables, and prose commentary.
 
 <h3>Solution</h3>
@@ -409,11 +472,46 @@ Create and share an interactive dashboard.
 <h3>Solution</h3>
 R, `shiny`, and `flexdashboard`.
 
-Conclusion
-=====================================
-With the `tidyverse` in hand, R is:
+Link: 
 
-- Flexible
-- Powerful
-- Affordable
-- *Accessible*
+Other Fun R Things
+=====================================
+type: exclaim
+
+- Tufte-style handouts
+- Storyboards
+- `gganimate`
+- `bookdown`
+- Templates for journals, CVs, etc. 
+- Shiny Gadgets
+- Rstudio Add-ins
+- #rstats
+
+Validity of Inferences?
+=====================================
+type: exclaim
+
+<h3>Premises</h3>
+
+1. R is flexible.
+2. R is powerful.
+3. R is affordable.
+4. R is accessible.
+
+***
+
+<h3>Inferences</h3>
+1. You can use R.
+2. You *should* use R?
+
+David Ranzolin
+=====================================
+type: exclaim
+
+- Email: dranzolin@ucscout.org
+- Twitter: @daranzolin
+- Github: github.com/daranzolin
+- Blog: daranzolin.github.io
+
+
+
